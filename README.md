@@ -6,6 +6,12 @@ A full-stack customer support conversation workspace: search, tag, assign, and f
 - **Backend:** Go, `net/http`, no framework
 - **Storage:** in-memory (see [Limitations](#limitations))
 
+
+<img width="790" height="407" alt="image" src="https://github.com/user-attachments/assets/95ed143b-3864-41e5-bf6b-6f4a6a68715b" />
+
+
+<img width="759" height="406" alt="image" src="https://github.com/user-attachments/assets/59a81cfc-da50-4fc8-9486-9f0259724d28" />
+
 ## Features
 
 **Home** — a landing screen with a live dashboard snapshot (total conversations, overdue follow-ups, AI-flagged priority bumps) and quick entry points into Conversations and Dashboard.
