@@ -1,0 +1,40 @@
+<section class="hero card">
+  <span class="eyebrow">Support Desk</span>
+  <h1 class="hero-title">Every conversation, organized and prioritized.</h1>
+  <p class="hero-subtitle">
+    Search, tag, assign, and follow up on customer conversations &mdash; with an AI-flavored
+    assist on what to prioritize next.
+  </p>
+
+  <div class="hero-actions">
+    <button type="button" (click)="goTo('conversations')">View conversations</button>
+    <button type="button" class="secondary" (click)="goTo('dashboard')">View dashboard</button>
+  </div>
+
+  @if (summary(); as data) {
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-value">{{ data.total }}</span>
+        <span class="hero-stat-label">Total conversations</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">{{ data.overdueFollowUps }}</span>
+        <span class="hero-stat-label">Overdue follow-ups</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">{{ data.suggestedPriorityBumps }}</span>
+        <span class="hero-stat-label">AI-flagged bumps</span>
+      </div>
+    </div>
+  }
+</section>
+
+<div class="highlight-grid">
+  @for (highlight of highlights; track highlight.title) {
+    <div class="card highlight-card">
+      <span class="highlight-icon" aria-hidden="true">{{ highlight.icon }}</span>
+      <h2>{{ highlight.title }}</h2>
+      <p>{{ highlight.description }}</p>
+    </div>
+  }
+</div>

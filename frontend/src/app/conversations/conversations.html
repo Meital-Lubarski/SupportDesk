@@ -1,0 +1,163 @@
+<section class="card filters-card">
+  <h2>Search &amp; filters</h2>
+
+  <form
+    (submit)="
+      $event.preventDefault();
+      applyFilters(searchInput.value, statusSelect.value, prioritySelect.value, tagInput.value, assigneeSelect.value)
+    "
+  >
+    <div class="field">
+      <label for="search">Search</label>
+      <input
+        #searchInput
+        id="search"
+        type="text"
+        placeholder="Name, email, or subject"
+      />
+    </div>
+
+    <div class="field">
+      <label for="status">Status</label>
+      <select #statusSelect id="status">
+        <option value="">All statuses</option>
+        <option value="OPEN">Open</option>
+        <option value="IN_PROGRESS">In progress</option>
+        <option value="RESOLVED">Resolved</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="priority">Priority</label>
+      <select #prioritySelect id="priority">
+        <option value="">All priorities</option>
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="tag">Tag</label>
+      <input #tagInput id="tag" type="text" placeholder="e.g. VIP" />
+    </div>
+
+    <div class="field">
+      <label for="assignee">Assignee</label>
+      <select #assigneeSelect id="assignee">
+        <option value="">All agents</option>
+        <option value="unassigned">Unassigned</option>
+        @for (agent of agents(); track agent) {
+          <option [value]="agent">{{ agent }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field-actions">
+      <button type="submit">Apply filters</button>
+      <button type="button" class="secondary" (click)="clearFilters()">Clear</button>
+    </div>
+  </form>
+</section>
+
+<section class="card list-card">
+  <div class="list-card-header">
+    <h2>Conversations</h2>
+    <div class="list-card-actions">
+      <button type="button" (click)="openCreateForm()">+ New conversation</button>
+      <a class="secondary export-link" [href]="exportUrl()" download="conversations.csv" target="_blank" rel="noopener">
+        Export CSV
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="state-message">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Loading conversations...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state-message">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="loadConversations()">Try again</button>
+    </div>
+  } @else if (conversations().length === 0) {
+    <div class="state-message">
+      <p>No conversations match these filters.</p>
+    </div>
+  } @else {
+    <ul class="conversation-list">
+      @for (conversation of conversations(); track conversation.id) {
+        <li>
+          <button
+            type="button"
+            class="conversation-card"
+            [class.selected]="selectedConversation()?.id === conversation.id"
+            (click)="toggleConversation(conversation)"
+          >
+            <div class="conversation-card-top">
+              <strong>{{ conversation.customerName }}</strong>
+              <span class="created">{{ conversation.createdAt | date: 'MMM d' }}</span>
+            </div>
+
+            <p class="subject">{{ conversation.subject }}</p>
+
+            <div class="assignee-row">
+              @if (conversation.assignedTo) {
+                <span class="assignee-avatar">{{ initials(conversation.assignedTo) }}</span>
+                <span class="assignee-name">{{ conversation.assignedTo }}</span>
+              } @else {
+                <span class="assignee-avatar unassigned">?</span>
+                <span class="assignee-name muted">Unassigned</span>
+              }
+            </div>
+
+            <div class="badges">
+              <span [class]="statusBadgeClass(conversation.status)">{{ statusLabel(conversation.status) }}</span>
+              <span [class]="priorityBadgeClass(conversation.priority)">{{ priorityLabel(conversation.priority) }}</span>
+
+              @if (followUpState(conversation.followUpDate, conversation.status); as state) {
+                @if (state === 'overdue') {
+                  <span class="badge badge-followup-overdue">Follow-up overdue</span>
+                } @else if (state === 'soon') {
+                  <span class="badge badge-followup-soon">Follow-up soon</span>
+                }
+              }
+            </div>
+
+            @if (conversation.tags.length > 0) {
+              <div class="tag-list">
+                @for (tag of conversation.tags; track tag) {
+                  <span class="tag-chip">{{ tag }}</span>
+                }
+              </div>
+            }
+          </button>
+
+          @if (selectedConversation()?.id === conversation.id) {
+            <div class="detail-panel">
+              <app-conversation-detail
+                [conversation]="conversation"
+                [agents]="agents()"
+                [saving]="saving()"
+                [saveMessage]="saveMessage()"
+                [saveError]="saveError()"
+                (save)="saveConversation($event)"
+              />
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+@if (showCreateForm()) {
+  <app-new-conversation
+    [agents]="agents()"
+    [creating]="creating()"
+    [errorMessage]="createError()"
+    (create)="createConversation($event)"
+    (cancel)="closeCreateForm()"
+  />
+}

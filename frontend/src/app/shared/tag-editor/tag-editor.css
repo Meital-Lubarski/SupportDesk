@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  min-height: 2px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 12px;
+  border-radius: 999px;
+  background: var(--color-tag-bg);
+  color: var(--color-tag-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tag-remove {
+  background: transparent;
+  color: inherit;
+  padding: 0 4px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.tag-remove:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.tag-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tag-input-row input {
+  flex: 1;
+}

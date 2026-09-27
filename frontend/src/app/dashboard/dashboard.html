@@ -1,0 +1,137 @@
+@if (loading() && !summary()) {
+  <div class="state-message">
+    <span class="spinner" aria-hidden="true"></span>
+    <p>Loading dashboard...</p>
+  </div>
+} @else if (errorMessage() && !summary()) {
+  <div class="state-message">
+    <p>{{ errorMessage() }}</p>
+    <button type="button" (click)="loadSummary()">Try again</button>
+  </div>
+} @else if (summary(); as data) {
+  <div class="dashboard-toolbar">
+    @if (errorMessage()) {
+      <span class="refresh-error">{{ errorMessage() }}</span>
+    } @else if (lastUpdated(); as updated) {
+      <span class="last-updated">Last updated {{ updated | date: 'shortTime' }}</span>
+    }
+    <button
+      type="button"
+      class="icon-button"
+      [class.spinning]="loading()"
+      [disabled]="loading()"
+      (click)="loadSummary()"
+      aria-label="Refresh dashboard"
+      title="Refresh"
+    >
+      ↻
+    </button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="card stat-tile">
+      <span class="stat-value">{{ data.total }}</span>
+      <span class="stat-label">Total conversations</span>
+    </div>
+
+    <div class="card stat-tile warn">
+      <span class="stat-value">{{ data.overdueFollowUps }}</span>
+      <span class="stat-label">Overdue follow-ups</span>
+    </div>
+
+    <div class="card stat-tile info">
+      <span class="stat-value">{{ data.upcomingFollowUps }}</span>
+      <span class="stat-label">Follow-ups due in 7 days</span>
+    </div>
+
+    <div class="card stat-tile ai">
+      <span class="stat-value">{{ data.suggestedPriorityBumps }}</span>
+      <span class="stat-label">
+        <span class="ai-icon" aria-hidden="true">✨</span>
+        AI-flagged priority bumps
+      </span>
+    </div>
+  </div>
+
+  <section class="card chart-card">
+    <div class="chart-card-header">
+      <h2>Status distribution</h2>
+      <span class="chart-total">{{ data.total }} total</span>
+    </div>
+
+    <div class="stack-bar">
+      @for (entry of statusChart(); track entry.key) {
+        <div
+          class="stack-segment"
+          tabindex="0"
+          [style.width.%]="entry.percent"
+          [style.background]="statusColors[entry.key]"
+          [title]="entry.label + ': ' + entry.count + ' (' + entry.percent + '%)'"
+        ></div>
+      }
+    </div>
+
+    <ul class="chart-legend">
+      @for (entry of statusChart(); track entry.key) {
+        <li>
+          <span class="legend-swatch" [style.background]="statusColors[entry.key]"></span>
+          <span class="legend-label">{{ entry.label }}</span>
+          <span class="legend-count">{{ entry.count }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <div class="breakdown-grid">
+    <section class="card breakdown-card">
+      <h2>By priority</h2>
+      <ul class="breakdown-list">
+        @for (entry of priorityBreakdown(); track entry.key) {
+          <li>
+            <div class="breakdown-row">
+              <span>{{ entry.label }}</span>
+              <span class="breakdown-count">{{ entry.count }}</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill priority-{{ entry.key }}" [style.width.%]="entry.percent"></div>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="card breakdown-card">
+      <h2>By tag</h2>
+      @if (tagBreakdown().length === 0) {
+        <p class="empty-note">No tags yet.</p>
+      } @else {
+        <div class="tag-cloud">
+          @for (entry of tagBreakdown(); track entry.key) {
+            <span class="tag-chip">{{ entry.label }} <b>{{ entry.count }}</b></span>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="card breakdown-card">
+      <h2>Agent workload</h2>
+      <ul class="breakdown-list">
+        @for (entry of agentBreakdown(); track entry.key) {
+          <li>
+            <div class="breakdown-row">
+              <span [class.muted-label]="entry.key === 'Unassigned'">{{ entry.label }}</span>
+              <span class="breakdown-count">{{ entry.count }}</span>
+            </div>
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                [class.bar-fill-muted]="entry.key === 'Unassigned'"
+                [style.width.%]="entry.percent"
+              ></div>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+}

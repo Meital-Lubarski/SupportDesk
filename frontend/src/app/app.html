@@ -1,0 +1,48 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">SD</span>
+      <div>
+        <h1>Support Desk</h1>
+        <p>Customer conversation workspace</p>
+      </div>
+    </div>
+
+    <nav class="tabs">
+      <button
+        type="button"
+        class="tab"
+        [class.active]="activeView() === 'home'"
+        (click)="setView('home')"
+      >
+        Home
+      </button>
+      <button
+        type="button"
+        class="tab"
+        [class.active]="activeView() === 'conversations'"
+        (click)="setView('conversations')"
+      >
+        Conversations
+      </button>
+      <button
+        type="button"
+        class="tab"
+        [class.active]="activeView() === 'dashboard'"
+        (click)="setView('dashboard')"
+      >
+        Dashboard
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    @if (activeView() === 'home') {
+      <app-home (navigate)="setView($event)" />
+    } @else if (activeView() === 'conversations') {
+      <app-conversations />
+    } @else {
+      <app-dashboard />
+    }
+  </main>
+</div>

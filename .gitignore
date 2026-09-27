@@ -1,0 +1,26 @@
+# Environment / secrets
+.env
+.env.*
+*.env
+
+# Dependencies
+node_modules/
+
+# Angular
+.angular/
+dist/
+
+# Go
+*.exe
+*.test
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Assignment-specific files
+AI_USAGE.md

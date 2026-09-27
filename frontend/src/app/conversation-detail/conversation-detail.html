@@ -1,0 +1,142 @@
+<dl class="meta">
+  <dt>Email</dt>
+  <dd>{{ conversation.customerEmail }}</dd>
+
+  <dt>Created</dt>
+  <dd>{{ conversation.createdAt | date: 'medium' }}</dd>
+</dl>
+
+<div class="ai-panel">
+  <div class="ai-panel-header">
+    <span class="ai-icon" aria-hidden="true">✨</span>
+    <span class="ai-title">AI Insights</span>
+    <span class="ai-disclaimer">rule-based, not a live model</span>
+  </div>
+
+  @if (insightsLoading()) {
+    <p class="ai-loading">Analyzing conversation...</p>
+  } @else if (insightsError()) {
+    <p class="ai-error">{{ insightsError() }}</p>
+  } @else if (insights(); as data) {
+    <p class="ai-summary">{{ data.summary }}</p>
+
+    <div class="ai-priority-row">
+      <span class="ai-priority-label">Suggested priority</span>
+      <span [class]="priorityBadgeClass(data.suggestedPriority)">{{ priorityLabel(data.suggestedPriority) }}</span>
+
+      @if (data.matchesCurrent) {
+        <span class="ai-match">Matches current priority</span>
+      } @else {
+        <button type="button" class="secondary ai-apply" (click)="applySuggestedPriority()">
+          Apply suggestion
+        </button>
+      }
+    </div>
+
+    <p class="ai-reason">{{ data.priorityReason }}</p>
+  }
+</div>
+
+<form (submit)="$event.preventDefault(); submit()">
+  <div class="field-row">
+    <div class="field">
+      <label for="edit-status">Status</label>
+      <select id="edit-status" [(ngModel)]="editStatus" name="editStatus">
+        <option value="OPEN">Open</option>
+        <option value="IN_PROGRESS">In progress</option>
+        <option value="RESOLVED">Resolved</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="edit-priority">Priority</label>
+      <select id="edit-priority" [(ngModel)]="editPriority" name="editPriority">
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="edit-follow-up">Follow-up date</label>
+      <input
+        id="edit-follow-up"
+        type="date"
+        [(ngModel)]="editFollowUpDate"
+        name="editFollowUpDate"
+      />
+    </div>
+
+    <div class="field">
+      <label for="edit-assignee">Assignee</label>
+      <select id="edit-assignee" [(ngModel)]="editAssignedTo" name="editAssignedTo">
+        <option value="">Unassigned</option>
+        @for (agent of agents; track agent) {
+          <option [value]="agent">{{ agent }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="edit-tags">Tags</label>
+    <app-tag-editor
+      inputId="edit-tags"
+      [tags]="editTags"
+      (tagsChange)="editTags = $event"
+    />
+  </div>
+
+  <div class="field">
+    <label for="edit-notes">Notes</label>
+    <textarea
+      id="edit-notes"
+      rows="4"
+      placeholder="Internal notes about this conversation"
+      [(ngModel)]="editNotes"
+      name="editNotes"
+    ></textarea>
+  </div>
+
+  <div class="detail-actions">
+    <button type="submit" [disabled]="saving">
+      @if (saving) {
+        Saving...
+      } @else {
+        Save changes
+      }
+    </button>
+
+    @if (saveMessage) {
+      <p class="save-message success">{{ saveMessage }}</p>
+    }
+
+    @if (saveError) {
+      <p class="save-message error">{{ saveError }}</p>
+    }
+  </div>
+</form>
+
+<div class="activity-panel">
+  <h3>Activity</h3>
+
+  @if (activityLoading()) {
+    <p class="activity-loading">Loading history...</p>
+  } @else if (activityError()) {
+    <p class="activity-error">{{ activityError() }}</p>
+  } @else if (activity().length === 0) {
+    <p class="activity-empty">No activity recorded yet.</p>
+  } @else {
+    <ul class="activity-list">
+      @for (entry of activity(); track entry.timestamp + entry.description) {
+        <li>
+          <span class="activity-dot" aria-hidden="true"></span>
+          <div class="activity-body">
+            <p class="activity-description">{{ entry.description }}</p>
+            <p class="activity-timestamp">{{ entry.timestamp | date: 'medium' }}</p>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>
